@@ -18,6 +18,7 @@ dependencies:
   realm: ^1.9.0
   window_manager: ^0.3.8
   pull_down_button: ^0.9.3
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

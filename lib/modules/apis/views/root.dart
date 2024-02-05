@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solo_api/common.dart';
 import 'package:solo_api/components/action_tile.dart';
+import 'package:solo_api/modules/apis/services/request_srv.dart';
 import 'package:solo_api/modules/apis/views/body.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -95,6 +96,7 @@ class _APINeckState extends ConsumerState<APINeck> {
   @override
   Widget build(BuildContext context) {
     final routes = realm.query<APIRoute>('folder ==\$0', [widget.folder]);
+    final apiRequestService = ref.watch(apiRequestServiceProvider);
     return Split(
       axis: Axis.horizontal,
       initialFractions: const [.2, .8],
@@ -164,6 +166,7 @@ class _APINeckState extends ConsumerState<APINeck> {
               ? APIRouteBody(
                   route: route!,
                   theme: widget.theme,
+                  routeData: apiRequestService[route!.id.toString()],
                 )
               : const Center(
                   child: Text('Select an api'),
