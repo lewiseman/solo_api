@@ -18,6 +18,5 @@ class ApiRequestNotifier
       path: 'https://jsonplaceholder.typicode.com/posts',
     );
     state = {...state, route.id.toString(): AsyncData(response)};
-    print(state);
   }
 }

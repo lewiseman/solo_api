@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:solo_api/common.dart';
+import 'package:solo_api/modules/apis/views/response/response_body.dart';
+import 'package:solo_api/modules/apis/views/response/response_header.dart';
 
 class APIResponse extends StatelessWidget {
   const APIResponse({
@@ -31,23 +33,21 @@ class APIResponse extends StatelessWidget {
         ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(top: 5, left: 12),
+            padding: const EdgeInsets.only(top: 5),
             child: TabBarView(
               controller: tabController,
               children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text(
-                    routeData?.value?.body ?? '',
-                  ),
-                ),
-                SingleChildScrollView(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Text(
-                    routeData?.value?.headers.toString() ?? '',
-                  ),
-                ),
-                Text('No cookies'),
+                if (routeData?.value?.body.isNotEmpty ?? false)
+                APIResponseBody(body: routeData!.value!.body)
+                else
+                  const Center(child: Text('No Body')),
+                if (routeData?.value?.headers.isNotEmpty ?? false)
+                  ResponseHeaderSect(
+                    headers: routeData!.value!.headers,
+                  )
+                else
+                  const Center(child: Text('No Headers')),
+                const Center(child: Text('No Cookies')),
               ],
             ),
           ),

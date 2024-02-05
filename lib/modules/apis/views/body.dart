@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:solo_api/common.dart';
 import 'package:solo_api/modules/apis/views/request_sect.dart';
-import 'package:solo_api/modules/apis/views/response_sect.dart';
+import 'package:solo_api/modules/apis/views/response/response_sect.dart';
 
 class APIRouteBody extends StatefulWidget {
   const APIRouteBody({
