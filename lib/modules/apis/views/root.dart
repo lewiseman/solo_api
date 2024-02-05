@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solo_api/common.dart';
+import 'package:solo_api/components/action_tile.dart';
+import 'package:solo_api/modules/apis/views/body.dart';
 import 'package:window_manager/window_manager.dart';
 
 class RootApiFolder extends ConsumerWidget {
@@ -55,7 +57,10 @@ class RootApiFolder extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: APINeck(theme: theme),
+            child: APINeck(
+              theme: theme,
+              folder: folder,
+            ),
           )
         ],
       ),
@@ -63,33 +68,106 @@ class RootApiFolder extends ConsumerWidget {
   }
 }
 
-class APINeck extends StatelessWidget {
+class APINeck extends ConsumerStatefulWidget {
   const APINeck({
     super.key,
     required this.theme,
+    required this.folder,
   });
 
   final ThemeData theme;
+  final APIFolder folder;
+
+  @override
+  ConsumerState<APINeck> createState() => _APINeckState();
+}
+
+class _APINeckState extends ConsumerState<APINeck> {
+  int? selectedIndex;
+  APIRoute? route;
+  late Realm realm;
+  @override
+  void initState() {
+    super.initState();
+    realm = ref.read(realmProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final routes = realm.query<APIRoute>('folder ==\$0', [widget.folder]);
     return Split(
       axis: Axis.horizontal,
-      initialFractions: [.3, .7],
+      initialFractions: const [.2, .8],
       children: [
-        const Text("asdsd"),
+        Column(
+          children: [
+            Expanded(
+              child: StreamBuilder(
+                stream: routes.changes,
+                builder: (context, snapshot) {
+                  final data = snapshot.data?.results;
+                  return ListView.builder(
+                    itemCount: data?.length,
+                    itemBuilder: (context, index) {
+                      final navroute = data?[index];
+                      return ActionTile(
+                        title: navroute?.name ?? '',
+                        selected: selectedIndex == index,
+                        icon: Icons.add_rounded,
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                            route = navroute;
+                          });
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            SizedBox(
+              height: 5,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    right: -15,
+                    left: 0,
+                    child: Divider(
+                      height: 1,
+                      color: widget.theme.dividerColor,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            ActionTile(
+              title: 'Add',
+              icon: Icons.add_rounded,
+              onTap: () {},
+            )
+          ],
+        ),
         Container(
           decoration: BoxDecoration(
-            color: theme.canvasColor,
+            color: widget.theme.canvasColor,
             border: Border(
-              left: BorderSide(color: theme.dividerColor),
-              top: BorderSide(color: theme.dividerColor),
+              left: BorderSide(color: widget.theme.dividerColor),
+              top: BorderSide(color: widget.theme.dividerColor),
             ),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),
             ),
           ),
-          child: const Text('body'),
+          child: (route != null)
+              ? APIRouteBody(
+                  route: route!,
+                  theme: widget.theme,
+                )
+              : const Center(
+                  child: Text('Select an api'),
+                ),
         ),
       ],
     );
