@@ -7,11 +7,13 @@ class ActionTile extends StatelessWidget {
     this.icon,
     this.onTap,
     this.selected,
+    this.trailing,
   });
   final String title;
   final IconData? icon;
   final VoidCallback? onTap;
   final bool? selected;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class ActionTile extends StatelessWidget {
         minLeadingWidth: 1,
         minVerticalPadding: 1,
         horizontalTitleGap: 8,
+        trailing: trailing,
         contentPadding: const EdgeInsets.only(left: 4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),

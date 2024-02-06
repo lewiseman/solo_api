@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:solo_api/common.dart';
-import 'package:solo_api/modules/apis/views/request_sect.dart';
+import 'package:solo_api/modules/apis/views/request/request_sect.dart';
 import 'package:solo_api/modules/apis/views/response/response_sect.dart';
 
 class APIRouteBody extends StatefulWidget {
@@ -10,10 +10,12 @@ class APIRouteBody extends StatefulWidget {
     required this.route,
     required this.theme,
     required this.routeData,
+    required this.onDelete,
   });
   final APIRoute route;
   final ThemeData theme;
   final AsyncValue<Response>? routeData;
+  final VoidCallback onDelete;
 
   @override
   State<APIRouteBody> createState() => _APIRouteBodyState();
@@ -55,6 +57,7 @@ class _APIRouteBodyState extends State<APIRouteBody>
           tabs: requestTabs,
           theme: widget.theme,
           routeData: widget.routeData,
+          onDelete: widget.onDelete,
         ),
         APIResponse(
           tabController: responseTabController,

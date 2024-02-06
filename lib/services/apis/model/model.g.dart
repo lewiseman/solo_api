@@ -49,14 +49,29 @@ class APIFolder extends _APIFolder
 
 class APIRoute extends _APIRoute
     with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
   APIRoute(
     ObjectId id,
     String name, {
     APIFolder? folder,
+    String? url,
+    String? headers,
+    String method = 'GET',
+    String? body,
   }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<APIRoute>({
+        'method': 'GET',
+      });
+    }
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'folder', folder);
     RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'url', url);
+    RealmObjectBase.set(this, 'headers', headers);
+    RealmObjectBase.set(this, 'method', method);
+    RealmObjectBase.set(this, 'body', body);
   }
 
   APIRoute._();
@@ -75,7 +90,28 @@ class APIRoute extends _APIRoute
   @override
   String get name => RealmObjectBase.get<String>(this, 'name') as String;
   @override
-  set name(String value) => throw RealmUnsupportedSetError();
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  String? get url => RealmObjectBase.get<String>(this, 'url') as String?;
+  @override
+  set url(String? value) => RealmObjectBase.set(this, 'url', value);
+
+  @override
+  String? get headers =>
+      RealmObjectBase.get<String>(this, 'headers') as String?;
+  @override
+  set headers(String? value) => RealmObjectBase.set(this, 'headers', value);
+
+  @override
+  String get method => RealmObjectBase.get<String>(this, 'method') as String;
+  @override
+  set method(String value) => RealmObjectBase.set(this, 'method', value);
+
+  @override
+  String? get body => RealmObjectBase.get<String>(this, 'body') as String?;
+  @override
+  set body(String? value) => RealmObjectBase.set(this, 'body', value);
 
   @override
   Stream<RealmObjectChanges<APIRoute>> get changes =>
@@ -94,6 +130,10 @@ class APIRoute extends _APIRoute
           optional: true, linkTarget: 'APIFolder'),
       SchemaProperty('name', RealmPropertyType.string,
           indexType: RealmIndexType.fullText),
+      SchemaProperty('url', RealmPropertyType.string, optional: true),
+      SchemaProperty('headers', RealmPropertyType.string, optional: true),
+      SchemaProperty('method', RealmPropertyType.string),
+      SchemaProperty('body', RealmPropertyType.string, optional: true),
     ]);
   }
 }

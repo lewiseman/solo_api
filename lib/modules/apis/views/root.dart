@@ -147,7 +147,13 @@ class _APINeckState extends ConsumerState<APINeck> {
             ActionTile(
               title: 'Add',
               icon: Icons.add_rounded,
-              onTap: () {},
+              onTap: () {
+                realm.write(
+                  () => realm.add(
+                    APIRoute(ObjectId(), 'New API', folder: widget.folder),
+                  ),
+                );
+              },
             )
           ],
         ),
@@ -167,6 +173,11 @@ class _APINeckState extends ConsumerState<APINeck> {
                   route: route!,
                   theme: widget.theme,
                   routeData: apiRequestService[route!.id.toString()],
+                  onDelete: () {
+                    // setState(() {
+                    //   route = null;
+                    // });
+                  },
                 )
               : const Center(
                   child: Text('Select an api'),

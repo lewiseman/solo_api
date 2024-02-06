@@ -1,4 +1,5 @@
 import 'package:realm/realm.dart';
+import 'package:solo_api/common.dart';
 
 part 'model.g.dart';
 
@@ -17,5 +18,9 @@ class _APIRoute {
   late final _APIFolder? folder;
 
   @Indexed(RealmIndexType.fullText)
-  late final String name;
+  late String name;
+  late String? url;
+  late String? headers;
+  late String method = 'GET';
+  late String? body;
 }
