@@ -115,7 +115,9 @@ class _APINeckState extends ConsumerState<APINeck> {
                       return ActionTile(
                         title: navroute?.name ?? '',
                         selected: selectedIndex == index,
-                        icon: Icons.add_rounded,
+                        icon: RequestType.method(navroute?.method ?? '').icon(
+                          size: 7,
+                        ),
                         onTap: () {
                           setState(() {
                             selectedIndex = index;
@@ -146,7 +148,7 @@ class _APINeckState extends ConsumerState<APINeck> {
             ),
             ActionTile(
               title: 'Add',
-              icon: Icons.add_rounded,
+              icon: const Icon(Icons.add_rounded),
               onTap: () {
                 realm.write(
                   () => realm.add(
@@ -180,7 +182,7 @@ class _APINeckState extends ConsumerState<APINeck> {
                   },
                 )
               : const Center(
-                  child: Text('Select an api'),
+                  child: Text('Select an Api'),
                 ),
         ),
       ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solo_api/common.dart';
 import 'package:solo_api/modules/apis/views/request/request_head.dart';
+import 'package:solo_api/modules/apis/views/request/request_params.dart';
 
 class APIRequest extends ConsumerWidget {
   const APIRequest({
@@ -49,6 +50,19 @@ class APIRequest extends ConsumerWidget {
             ),
             tabs: tabs,
           ),
+          Expanded(
+            child: TabBarView(
+              controller: tabController,
+              children: [
+                RequestParams(
+                  route: route,
+                ),
+                Text('data'),
+                Text('data'),
+                Text('data'),
+              ],
+            ),
+          )
         ],
       ),
     );

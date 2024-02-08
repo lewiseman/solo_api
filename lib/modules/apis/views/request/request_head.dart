@@ -154,18 +154,21 @@ class _APIRequestHeadState extends ConsumerState<APIRequestHead> {
                           child: PullDownButton(
                             itemBuilder: (BuildContext context) {
                               return RequestType.values
-                                  .map((e) => PullDownMenuItem.selectable(
-                                        onTap: () {
-                                          final realm = ref.read(realmProvider);
-                                          realm.write(() {
-                                            widget.route.method = e.toString();
-                                          });
-                                        },
-                                        title: e.toString(),
-                                        icon: CupertinoIcons.delete,
-                                        selected:
-                                            e.toString() == widget.route.method,
-                                      ))
+                                  .map(
+                                    (e) => PullDownMenuItem.selectable(
+                                      onTap: () {
+                                        final realm = ref.read(realmProvider);
+                                        realm.write(() {
+                                          widget.route.method = e.toString();
+                                        });
+                                      },
+                                      title: e.toString(),
+                                      iconColor: e.color,
+                                      icon: CupertinoIcons.circle_fill,
+                                      selected:
+                                          e.toString() == widget.route.method,
+                                    ),
+                                  )
                                   .toList();
                             },
                             buttonBuilder: (context, showMenu) => InkWell(
@@ -177,9 +180,11 @@ class _APIRequestHeadState extends ConsumerState<APIRequestHead> {
                                 padding: const EdgeInsets.all(4.0),
                                 child: Row(
                                   children: [
-                                    Text(widget.route.method),
+                                    RequestType.method(widget.route.method)
+                                        .icon(),
                                     const Icon(
-                                        Icons.keyboard_arrow_down_rounded)
+                                      Icons.keyboard_arrow_down_rounded,
+                                    )
                                   ],
                                 ),
                               ),

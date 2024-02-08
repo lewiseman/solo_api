@@ -10,7 +10,7 @@ class ActionTile extends StatelessWidget {
     this.trailing,
   });
   final String title;
-  final IconData? icon;
+  final Widget? icon;
   final VoidCallback? onTap;
   final bool? selected;
   final Widget? trailing;
@@ -42,7 +42,7 @@ class ActionTile extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    Center(child: Icon(icon)),
+                    Center(child: icon),
                     Positioned(
                       top: 8,
                       bottom: 8,
@@ -62,9 +62,7 @@ class ActionTile extends StatelessWidget {
                   ],
                 ),
               )
-            : icon != null
-                ? Icon(icon)
-                : null,
+            : icon,
       ),
     );
   }
