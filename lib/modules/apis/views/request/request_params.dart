@@ -10,7 +10,7 @@ class RequestParams extends ConsumerStatefulWidget {
 }
 
 class _RequestParamsState extends ConsumerState<RequestParams> {
-  List<Map<String, TextEditingController>> fields = [];
+  List<Map<String, String?>> fields = [];
   Map<String, String>? oldParams;
 
   @override
@@ -22,6 +22,7 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -32,13 +33,15 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
             },
             border: TableBorder.all(
               borderRadius: BorderRadius.circular(3),
+              color: theme.dividerColor,
             ),
             children: [
               TableRow(
                 children: [
                   TableCell(
                     child: Checkbox(
-                      value: false,
+                      value: fields.isNotEmpty,
+                      side: BorderSide(color: theme.dividerColor),
                       splashRadius: 10,
                       onChanged: (bool? value) {},
                     ),
@@ -71,6 +74,7 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
                     TableCell(
                       child: Checkbox(
                         value: false,
+                        side: BorderSide(color: theme.dividerColor),
                         splashRadius: 10,
                         onChanged: (bool? value) {},
                       ),
@@ -80,9 +84,13 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: TextField(
-                          controller: e['key'],
+                          controller: TextEditingController()
+                            ..text = e['key'] ?? ''
+                            ..selection = TextSelection.collapsed(
+                              offset: (e['key'] ?? '').length,
+                            ),
                           onChanged: (value) {
-                            updateParam(e['key']!.text, value);
+                            updateParam(key: e['key'], value: value);
                           },
                           decoration: const InputDecoration.collapsed(
                             hintText: 'Key',
@@ -95,7 +103,18 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: TextField(
-                          controller: e['value'],
+                          controller: TextEditingController()
+                            ..text = e['value'] ?? ''
+                            ..selection = TextSelection.collapsed(
+                              offset: (e['value'] ?? '').length,
+                            ),
+                          onChanged: (value) {
+                            updateParam(
+                              key: e['value'],
+                              value: value,
+                              isKey: false,
+                            );
+                          },
                           decoration: const InputDecoration.collapsed(
                             hintText: 'Value',
                           ),
@@ -104,6 +123,44 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
                     ),
                   ],
                 ),
+              ),
+              TableRow(
+                children: [
+                  TableCell(
+                    child: Checkbox(
+                      value: false,
+                      splashRadius: 10,
+                      side: BorderSide(color: theme.dividerColor),
+                      onChanged: (bool? value) {},
+                    ),
+                  ),
+                  TableCell(
+                    verticalAlignment: TableCellVerticalAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: TextField(
+                        onChanged: (value) {
+                          addParam(value: value);
+                        },
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'Key',
+                        ),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    verticalAlignment: TableCellVerticalAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: TextField(
+                        onChanged: (value) {},
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'Value',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               )
             ],
           ),
@@ -112,18 +169,40 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
     );
   }
 
-  updateParam(String key, String value) {
-    final realm = ref.read(realmProvider);
-    print(key);
-    print(value);
+  void addParam({bool isKey = true, required String value}) {}
+
+  void updateParam({String? key, required String value, bool isKey = true}) {
+    // find the item that has changed using the key , which is the previous value .
+    //Then update the value ( which is theincoming change)
+
+    final itemIndex =
+        fields.indexWhere((element) => element[isKey ? 'key' : 'value'] == key);
+    if (itemIndex != -1) {
+      final item = fields[itemIndex];
+
+      setState(() {
+        fields[itemIndex] = {
+          'key': isKey ? value : item['key'],
+          'value': isKey ? item['value'] : value
+        };
+      });
+      // Update APIRoute url
+      final uri = Uri.tryParse(widget.route.url ?? '');
+      final newParams =
+          fields.map((e) => MapEntry(e['key'] ?? '', e['value'] ?? ''));
+      final newUrl = uri?.replace(queryParameters: Map.fromEntries(newParams));
+      final newurlStr = newUrl?.toString() ?? '';
+      final realm = ref.read(realmProvider);
+      realm.write(() {
+        widget.route.url = newurlStr;
+      });
+    }
   }
 
-  void checkParamsChanges(RealmObjectChanges<APIRoute> newRoute) {
-    if (oldParams != null) {
-      final newParams =
-          Uri.tryParse(newRoute.object.url ?? '')?.queryParameters;
-      if (newParams != oldParams) {
-        final newFields = getParams(newRoute.object);
+  void checkParamsChanges(RealmObjectChanges<APIRoute> newRouteObject) {
+    if (newRouteObject.properties.contains('url')) {
+      final newFields = getParams(newRouteObject.object);
+      if (fields.toString() != newFields.toString()) {
         setState(() {
           fields = newFields;
         });
@@ -131,15 +210,12 @@ class _RequestParamsState extends ConsumerState<RequestParams> {
     }
   }
 
-  List<Map<String, TextEditingController>> getParams(APIRoute route) {
+  List<Map<String, String?>> getParams(APIRoute route) {
     try {
       final uri = Uri.parse(route.url!);
       oldParams = uri.queryParameters;
       return oldParams!.keys
-          .map((e) => {
-                'key': TextEditingController(text: e),
-                'value': TextEditingController(text: oldParams![e])
-              })
+          .map((e) => {'key': e, 'value': oldParams![e]})
           .toList();
     } catch (e) {
       return [];

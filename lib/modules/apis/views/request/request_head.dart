@@ -22,20 +22,22 @@ class APIRequestHead extends ConsumerStatefulWidget {
 }
 
 class _APIRequestHeadState extends ConsumerState<APIRequestHead> {
-  @override
-  void didUpdateWidget(covariant APIRequestHead oldWidget) {
-    if (oldWidget.route != widget.route) {
-      final myroute = widget.route;
-      urlController.text = myroute.url ?? '';
-      nameController.text = myroute.name;
-    }
-
-    super.didUpdateWidget(oldWidget);
-  }
-
   late final urlController = TextEditingController(text: widget.route.url);
   late final nameController = TextEditingController(text: widget.route.name);
   bool editingName = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.route.changes.listen((event) {
+      if (event.properties.contains('url')) {
+        final newUrl = event.object.url ?? '';
+        if (urlController.text != newUrl) {
+          urlController.text = newUrl;
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

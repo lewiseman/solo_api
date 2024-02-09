@@ -34,6 +34,7 @@ class APIRequest extends ConsumerWidget {
       child: Column(
         children: [
           APIRequestHead(
+            key: ValueKey(route.id),
             route: route,
             theme: theme,
             routeData: routeData,
@@ -55,6 +56,7 @@ class APIRequest extends ConsumerWidget {
               controller: tabController,
               children: [
                 RequestParams(
+                  key: ValueKey(route.id),
                   route: route,
                 ),
                 Text('data'),
